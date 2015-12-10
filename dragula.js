@@ -63,6 +63,7 @@ function dragula (initialContainers, options) {
   var drake = emitter({
     containers: o.containers,
     start: manualStart,
+    drag: manualDrag,
     end: end,
     cancel: cancel,
     remove: remove,
@@ -410,6 +411,40 @@ function dragula (initialContainers, options) {
         return true; // should always be able to drop it right back where it was
       }
       return o.accepts(_item, target, _source, reference);
+    }
+  }
+
+  function manualDrag (item, x, y) {
+    if (o.scrollContainer) {
+      doScrolling(x, y);
+    }
+
+    ensurePreviousCoords(x, y);
+    updateAxis(x, y);
+
+    var elementBehindCursor = doc.elementFromPoint(x, y);
+    var dropTarget = findDropTarget(elementBehindCursor, x, y);
+    var changed = dropTarget !== null && dropTarget !== _lastDropTarget;
+    if (changed || dropTarget === null) {
+      _lastDropTarget = dropTarget;
+    }
+    var reference;
+    var immediate = getImmediateChild(dropTarget, elementBehindCursor);
+    if (immediate !== null) {
+      reference = getReference(dropTarget, immediate, x, y);
+    }
+
+    updatePreviousCoords(x, y);
+
+    if (
+      reference === null ||
+      reference !== item &&
+      reference !== nextEl(item) &&
+      reference !== _currentSibling
+    ) {
+      if (!dropTarget) { return; }
+      _currentSibling = reference;
+      dropTarget.insertBefore(item, reference);
     }
   }
 
