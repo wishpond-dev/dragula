@@ -81,9 +81,7 @@ function dragula (initialContainers, options) {
   return drake;
 
   function setOption (prop, val) {
-    if (val) {
-      o[prop] = val;
-    }
+    o[prop] = val;
     return o[prop];
   }
 
